@@ -3,6 +3,7 @@ from nltk.corpus import stopwords
 import re
 import pandas as pd
 import sklearn
+import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
@@ -20,6 +21,32 @@ dataset.count()
 tweets = dataset['Text'].values
 classes = dataset['Classificacao'].values
 
+def remove_hashtag(word_list):
+    processed_word_list = []
+
+    for word in word_list:
+        limpo = " ".join(word.strip() for word in re.split('#|_|@', word))
+        processed_word_list.append(limpo)
+
+    return processed_word_list
+def remove_url(word_list):
+    processed_word_list = []
+
+    for word in word_list:
+        limpo = re.sub(r'^https?:\/\/.*[\r\n]*', '', word, flags=re.MULTILINE)
+        processed_word_list.append(limpo)
+
+    return processed_word_list
+#Diminui as palvras ao seu radical
+def aplica_stemmer(word_list):
+        stemmer = nltk.stem.RSLPStemmer()
+        processed_word_list = []
+        for word in word_list:
+                comStemming = [str(stemmer.stem(p)) for p in word.split()]
+                retorno = ' '.join(comStemming)
+                processed_word_list.append(retorno)
+        return processed_word_list
+
 def remove_stopwords(word_list):
     processed_word_list = []
     for word in word_list:
@@ -29,7 +56,12 @@ def remove_stopwords(word_list):
         processed_word_list.append(retorno)
     return processed_word_list
 
-tweets_sem_stop_word = remove_stopwords(tweets)
+tweets_limpos = remove_hashtag(tweets)
+tweets_limpos1 = remove_url(tweets_limpos)
+#tweets_sem_stop_word = remove_stopwords(tweets)
+#tweets_com_stemmer = aplica_stemmer(tweets)
+#analyzer="word"
+#ngram_range=(1,2)
 vectorizer = CountVectorizer(ngram_range=(1,2))
 freq_tweets = vectorizer.fit_transform(tweets)
 #print(freq_tweets)
