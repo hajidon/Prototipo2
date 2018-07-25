@@ -6,6 +6,7 @@ import sklearn
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.model_selection import cross_val_predict
@@ -58,31 +59,33 @@ def remove_stopwords(word_list):
 
 tweets_limpos = remove_hashtag(tweets)
 tweets_limpos1 = remove_url(tweets_limpos)
-#tweets_sem_stop_word = remove_stopwords(tweets)
-#tweets_com_stemmer = aplica_stemmer(tweets)
+tweets_sem_stop_word = remove_stopwords(tweets)
+tweets_com_stemmer = aplica_stemmer(tweets)
 #analyzer="word"
 #ngram_range=(1,2)
-vectorizer = CountVectorizer(ngram_range=(1,2))
-freq_tweets = vectorizer.fit_transform(tweets)
+vectorizer = CountVectorizer(encoding='utf-8', strip_accents='ascii', ngram_range=(1,2))
+freq_tweets = vectorizer.fit_transform(tweets_com_stemmer)
 #print(freq_tweets)
 modelo = LogisticRegression()
 #modelo = MultinomialNB()
 modelo.fit(freq_tweets,classes)
 
-# testes = ['Esse governo está no início, vamos ver o que vai dar',
-#          'Estou muito feliz com o governo de Minas esse ano',
-#          'O estado de Minas Gerais decretou calamidade financeira!!!',
-#          'A segurança desse país está deixando a desejar',
-#          'O governador de Minas é do PT',
-#          'Esse governo é o pior que ja vi',
-#          'Espero que seja um bom governo',
-#          'Estou muito triste com o governo',
-#          'eu estou gostando desse governo',
-#           'bandido bom é bandido morto']
-#
-# freq_testes = vectorizer.transform(testes)
-# teste = modelo.predict(freq_testes)
-# print(teste)
+testes = ['Esse governo está no início, vamos ver o que vai dar',
+         'Estou muito feliz com o governo de Minas esse ano',
+         'O estado de Minas Gerais decretou calamidade financeira!!!',
+         'A segurança desse país está deixando a desejar',
+         'O governador de Minas é do PT',
+         'Esse governo é o pior que ja vi',
+         'Espero que seja um bom governo',
+         'Estou muito triste com o governo',
+         'eu estou gostando desse governo',
+          'bandido bom é bandido morto']
+
+t1 = remove_stopwords(testes)
+freq_testes = vectorizer.transform(t1)
+teste = modelo.predict(freq_testes)
+print(teste)
+
 
 resultados = cross_val_predict(modelo, freq_tweets, classes, cv=10)
 print(metrics.accuracy_score(classes,resultados))
