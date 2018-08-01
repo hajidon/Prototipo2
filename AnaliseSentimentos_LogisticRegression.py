@@ -16,7 +16,7 @@ stopwordsNLTK.append('vou')
 stopwordsNLTK.append('tão')
 stopwordsNLTK.append('não')
 
-dataset = (pd.read_csv('Tweets_Mg.csv'))
+dataset = (pd.read_csv('Tweets_Mg1.csv'))
 dataset.count()
 
 tweets = dataset['Text'].values
@@ -63,7 +63,7 @@ tweets_sem_stop_word = remove_stopwords(tweets)
 tweets_com_stemmer = aplica_stemmer(tweets)
 #analyzer="word"
 #ngram_range=(1,2)
-vectorizer = CountVectorizer(encoding='utf-8', strip_accents='ascii', ngram_range=(1,2))
+vectorizer = TfidfVectorizer(encoding='utf-8', strip_accents='ascii', analyzer='word')
 freq_tweets = vectorizer.fit_transform(tweets_com_stemmer)
 #print(freq_tweets)
 modelo = LogisticRegression()
@@ -79,7 +79,7 @@ testes = ['Esse governo está no início, vamos ver o que vai dar',
          'Espero que seja um bom governo',
          'Estou muito triste com o governo',
          'eu estou gostando desse governo',
-          'bandido bom é bandido morto']
+         'bandido bom é bandido morto']
 
 t1 = remove_stopwords(testes)
 freq_testes = vectorizer.transform(t1)
@@ -89,6 +89,6 @@ print(teste)
 
 resultados = cross_val_predict(modelo, freq_tweets, classes, cv=10)
 print(metrics.accuracy_score(classes,resultados))
-sentimento=['Positivo','Negativo','Neutro']
+sentimento=['Positivo','Negativo']
 print(metrics.classification_report(classes,resultados,sentimento),'')
 print(pd.crosstab(classes, resultados, rownames=['Real'], colnames=['Predito'], margins=True), '')

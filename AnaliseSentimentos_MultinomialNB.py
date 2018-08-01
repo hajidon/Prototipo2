@@ -1,14 +1,9 @@
 import nltk
-from nltk.corpus import stopwords
 import re
 import pandas as pd
-import sklearn
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
-from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
 
 stopwordsNLTK = nltk.corpus.stopwords.words('portuguese')
@@ -16,11 +11,12 @@ stopwordsNLTK.append('vou')
 stopwordsNLTK.append('tão')
 stopwordsNLTK.append('não')
 
-dataset = (pd.read_csv('Tweets_Mg.csv'))
+dataset = (pd.read_csv('Tweets_Mg1.csv'))
 dataset.count()
 
 tweets = dataset['Text'].values
 classes = dataset['Classificacao'].values
+
 
 def remove_hashtag(word_list):
     processed_word_list = []
@@ -60,6 +56,7 @@ tweets_limpos = remove_hashtag(tweets)
 tweets_limpos1 = remove_url(tweets_limpos)
 tweets_sem_stop_word = remove_stopwords(tweets_limpos1)
 tweets_com_steeming = aplica_stemmer(tweets_sem_stop_word)
+
 vectorizer = TfidfVectorizer(encoding='utf-8', strip_accents='ascii', ngram_range=(1,2))
 freq_tweets = vectorizer.fit_transform(tweets_sem_stop_word)
 #print(freq_tweets)
@@ -67,17 +64,15 @@ freq_tweets = vectorizer.fit_transform(tweets_sem_stop_word)
 modelo = MultinomialNB()
 modelo.fit(freq_tweets,classes)
 
-testes = ['Esse governo está no início, vamos ver o que vai dar',
-         'esse governo é otimo',
+testes = ['esse governo é otimo',
          'O estado de Minas Gerais decretou calamidade financeira!!!',
          'A segurança desse país está deixando a desejar',
-         'O governador de Minas é do PT',
          'Esse governo é o pior que ja vi',
-         'Espero que seja um bom governo',
-         'Estou muito triste com o governo',
-         'eu estou gostando desse governo','Governo de Minas investiga casos suspeitos de febre amarela e malária no estado']
+         'Estou muito triste com esse governo de minas ',
+         'eu estou gostando desse governo',
+         'o governador de minas é bom']
 
-teste_Classe = ['neutro','positivo','negativo','negativo','neutro','negativo','neutro','negativo','positovo','negativo']
+teste_Classe = []
 t1 = remove_url(testes)
 t2 = remove_hashtag(t1)
 t3 = remove_stopwords(t2)
@@ -85,7 +80,7 @@ t4 = aplica_stemmer(t3)
 freq_testes = vectorizer.transform(t4)
 teste = modelo.predict(freq_testes)
 print(teste)
-sentimento=['Positivo','Negativo','Neutro']
+sentimento=['Positivo','Negativo']
 #confusion_matrix = confusion_matrix(teste_Classe,teste)
 #print(confusion_matrix)
 resultados = cross_val_predict(modelo, freq_tweets, classes, cv=10)
